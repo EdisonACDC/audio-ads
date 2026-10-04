@@ -74,7 +74,7 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return jsonify({"ok":True,"service":"audio-ads","version":"1.0.0"})
+    return jsonify({"ok":True,"service":"audio-ads","version":"1.0.3"})
 
 @app.get("/api/voices")
 def voices():
@@ -102,6 +102,16 @@ def upload(kind):
         return jsonify({"error":"Formato audio non supportato"}),400
     f.save(folder/name)
     return jsonify({"ok":True,"name":name})
+
+@app.get("/api/media/<kind>/<path:name>")
+def media(kind,name):
+    folder = MUSIC if kind=="music" else SFX if kind=="sfx" else None
+    if folder is None:
+        abort(404)
+    p = folder/safe(name)
+    if not p.exists() or not p.is_file():
+        abort(404)
+    return send_file(p,conditional=True)
 
 @app.post("/api/preview")
 def preview():
@@ -138,19 +148,26 @@ def generate():
             int(data.get("tts_volume",0)),speech
         ))
         speech_len = duration(speech)
+        total_len = speech_len + 0.8
         inputs = ["-i",str(speech)]
-        filters = [f"[0:a]volume={float(data.get('voice_gain',1.0))}[voice_src]"]
+        filters = [
+            f"[0:a]volume={float(data.get('voice_gain',1.0))},adelay=250|250[voice_src]"
+        ]
         labels = []
         voice_mix_label = "[voice_src]"
         idx = 1
 
         music = data.get("music")
-        if music and (MUSIC/safe(music)).exists():
-            inputs += ["-stream_loop","-1","-i",str(MUSIC/safe(music))]
+        music_path = MUSIC/safe(music) if music else None
+        if music_path and music_path.exists():
+            inputs += ["-stream_loop","-1","-i",str(music_path)]
+            music_gain = float(data.get("music_gain",.38))
             filters += [
                 "[voice_src]asplit=2[voice_mix][voice_sc]",
-                f"[{idx}:a]volume={float(data.get('music_gain',.24))},highpass=f=45,lowpass=f=18000[music]",
-                "[music][voice_sc]sidechaincompress=threshold=.025:ratio=10:attack=20:release=450[duck]"
+                f"[{idx}:a]atrim=0:{total_len:.2f},asetpts=N/SR/TB,"
+                f"volume={music_gain},highpass=f=45,lowpass=f=18000[music]",
+                "[music][voice_sc]sidechaincompress="
+                "threshold=.06:ratio=4:attack=15:release=350:makeup=1[duck]"
             ]
             voice_mix_label = "[voice_mix]"
             labels.append("[duck]")
@@ -179,7 +196,7 @@ def generate():
         ]
 
         run(["ffmpeg","-y",*inputs,"-filter_complex",";".join(filters),
-             "-map","[out]","-t",f"{speech_len+.5:.2f}",
+             "-map","[out]","-t",f"{total_len:.2f}",
              "-ar","48000","-ac","2",str(master_wav)])
         run(["ffmpeg","-y","-i",str(master_wav),"-codec:a","libmp3lame",
              "-b:a","192k",str(master_mp3)])
@@ -187,7 +204,9 @@ def generate():
         project = {
             "id":uid,"title":title,"created":int(time.time()),
             "duration":round(duration(master_mp3),2),
-            "mp3":master_mp3.name,"wav":master_wav.name,"settings":data
+            "mp3":master_mp3.name,"wav":master_wav.name,
+            "music_used":music if music_path and music_path.exists() else None,
+            "settings":data
         }
         (PROJECTS/f"{uid}.json").write_text(
             json.dumps(project,ensure_ascii=False,indent=2),encoding="utf-8"
