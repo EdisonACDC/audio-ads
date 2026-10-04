@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Audio Ads Studio</title>
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<div class="shell">
+<header>
+  <div><small>AUDIO ADS STUDIO</small><h1>Audio Ads Studio</h1><p>Spot radiofonici con voce AI, musica, effetti e mastering.</p></div>
+  <span>v1.0.0</span>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="textTab">Testo</button>
+  <button class="tab" data-tab="voiceTab">Voce</button>
+  <button class="tab" data-tab="musicTab">Musica</button>
+  <button class="tab" data-tab="fxTab">Effetti</button>
+  <button class="tab" data-tab="masterTab">Master</button>
+  <button class="tab" data-tab="archiveTab">Archivio</button>
+</nav>
+
+<section id="textTab" class="panel active">
+  <div class="grid two">
+    <label>Titolo<input id="title" value="Carellas Spot"></label>
+    <label>Lingua<select id="language">
+      {% for code,name in languages.items() %}<option value="{{code}}">{{name}}</option>{% endfor %}
+    </select></label>
+  </div>
+  <label>Testo dello spot<textarea id="text" placeholder="Inserisci il testo..."></textarea></label>
+  <div class="hint">Per uno spot radio: frasi brevi, messaggio chiaro e call-to-action finale.</div>
+</section>
+
+<section id="voiceTab" class="panel">
+  <div class="grid two">
+    <label>Voce<select id="gender"><option value="female">Femminile</option><option value="male">Maschile</option></select></label>
+    <label>Voce neurale<select id="voice"></select></label>
+  </div>
+  <div class="grid three">
+    <label>Velocità <b id="rateV">0%</b><input id="rate" type="range" min="-25" max="30" value="0"></label>
+    <label>Tono <b id="pitchV">0 Hz</b><input id="pitch" type="range" min="-40" max="40" value="0"></label>
+    <label>Volume <b id="ttsV">0%</b><input id="ttsVolume" type="range" min="-30" max="30" value="0"></label>
+  </div>
+  <button id="preview">▶ Anteprima voce</button>
+  <audio id="previewPlayer" controls></audio>
+</section>
+
+<section id="musicTab" class="panel">
+  <div class="upload"><input id="musicFile" type="file" accept="audio/*"><button id="uploadMusic">Carica musica</button></div>
+  <label>Musica<select id="music"><option value="">Nessuna</option></select></label>
+  <label>Volume musica <b id="musicV">24%</b><input id="musicGain" type="range" min="0" max="70" value="24"></label>
+  <div class="hint">Ducking automatico: la musica si abbassa quando parla la voce.</div>
+  <div id="musicList" class="list"></div>
+</section>
+
+<section id="fxTab" class="panel">
+  <div class="upload"><input id="fxFile" type="file" accept="audio/*"><button id="uploadFx">Carica effetto</button></div>
+  <div class="grid two">
+    <label>Intro<select id="intro"><option value="">Nessuno</option></select></label>
+    <label>Outro<select id="outro"><option value="">Nessuno</option></select></label>
+  </div>
+  <div id="fxList" class="list"></div>
+</section>
+
+<section id="masterTab" class="panel">
+  <label>Preset<select id="mastering">
+    {% for key,p in mastering.items() %}<option value="{{key}}">{{p.name}} — {{p.lufs}} LUFS</option>{% endfor %}
+  </select></label>
+  <label>Volume voce mix<input id="voiceGain" type="range" min="70" max="130" value="100"></label>
+  <div class="cards">
+    <div><b>Streaming</b><strong>-16 LUFS</strong><span>Web / social</span></div>
+    <div><b>Radio EBU</b><strong>-23 LUFS</strong><span>Broadcast</span></div>
+    <div><b>Sonos</b><strong>-18 LUFS</strong><span>Ristorante</span></div>
+  </div>
+  <button id="generate" class="primary">✨ GENERA SPOT</button>
+  <div id="status"></div>
+  <div id="result" class="result hidden">
+    <audio id="finalPlayer" controls></audio>
+    <div class="downloads"><a id="mp3" download>Scarica MP3</a><a id="wav" download>Scarica WAV</a></div>
+  </div>
+</section>
+
+<section id="archiveTab" class="panel">
+  <button id="refresh">Aggiorna archivio</button>
+  <div id="projects" class="list"></div>
+</section>
+</div>
+<script src="static/app.js"></script>
+</body>
+</html>
