@@ -139,17 +139,20 @@ def generate():
         ))
         speech_len = duration(speech)
         inputs = ["-i",str(speech)]
-        filters = [f"[0:a]volume={float(data.get('voice_gain',1.0))}[voice]"]
-        labels = ["[voice]"]
+        filters = [f"[0:a]volume={float(data.get('voice_gain',1.0))}[voice_src]"]
+        labels = []
+        voice_mix_label = "[voice_src]"
         idx = 1
 
         music = data.get("music")
         if music and (MUSIC/safe(music)).exists():
             inputs += ["-stream_loop","-1","-i",str(MUSIC/safe(music))]
             filters += [
+                "[voice_src]asplit=2[voice_mix][voice_sc]",
                 f"[{idx}:a]volume={float(data.get('music_gain',.24))},highpass=f=45,lowpass=f=18000[music]",
-                "[music][voice]sidechaincompress=threshold=.025:ratio=10:attack=20:release=450[duck]"
+                "[music][voice_sc]sidechaincompress=threshold=.025:ratio=10:attack=20:release=450[duck]"
             ]
+            voice_mix_label = "[voice_mix]"
             labels.append("[duck]")
             idx += 1
 
@@ -166,6 +169,8 @@ def generate():
             inputs += ["-i",str(SFX/safe(outro))]
             filters.append(f"[{idx}:a]volume=.55,adelay={delay}|{delay}[outro]")
             labels.append("[outro]")
+
+        labels.insert(0, voice_mix_label)
 
         preset = MASTERING.get(data.get("mastering"),MASTERING["sonos"])
         filters += [
