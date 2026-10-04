@@ -1,0 +1,14 @@
+:root{--bg:#090b0f;--card:#151a22;--line:#2a3342;--text:#f6f7f9;--muted:#9ba6b5;--gold:#d5a247}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#080a0d,#121722);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+.shell{max-width:1050px;margin:auto;padding:20px 14px 60px}header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+header small{color:var(--gold);font-weight:800;letter-spacing:.14em}h1{margin:3px 0;font-size:32px}header p{margin:0;color:var(--muted)}
+nav{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.tab{white-space:nowrap;background:#171c25;color:#c1c8d2;border:1px solid var(--line)}.tab.active{background:var(--gold);color:#17110a}
+button,a{border:0;border-radius:11px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none}
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 18px 50px #0005}.panel.active{display:block}
+label{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;font-weight:700}.grid{display:grid;gap:14px}.two{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:repeat(3,1fr)}
+input,select,textarea{width:100%;background:#0c1118;color:white;border:1px solid #323c4d;border-radius:10px;padding:12px;font:inherit}textarea{min-height:250px;resize:vertical}
+input[type=range]{padding:0}.hint{background:#101720;border-left:3px solid var(--gold);padding:12px;border-radius:8px;color:#b7c0cc;margin:10px 0}
+.upload{display:flex;gap:10px;margin-bottom:14px}.upload input{flex:1}.list{display:grid;gap:8px;margin-top:12px}.item{padding:11px 12px;background:#0e141c;border:1px solid #283245;border-radius:10px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cards div{background:#0e141c;border:1px solid #293446;border-radius:12px;padding:13px}.cards strong{display:block;color:var(--gold);font-size:22px}.cards span{color:var(--muted)}
+.primary{width:100%;margin-top:18px;background:linear-gradient(90deg,#d5a247,#ffd077);font-size:18px;color:#1a1208}.result{margin-top:14px}.hidden{display:none}audio{width:100%;margin-top:12px}.downloads{display:flex;gap:10px;margin-top:10px}.downloads a{background:var(--gold);color:#1a1208}.status,#status{text-align:center;padding:10px;color:#c8d0da}
+@media(max-width:700px){.two,.three,.cards{grid-template-columns:1fr}.upload{flex-direction:column}.panel{padding:15px}h1{font-size:27px}}
