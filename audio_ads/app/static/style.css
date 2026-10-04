@@ -12,3 +12,10 @@ input[type=range]{padding:0}.hint{background:#101720;border-left:3px solid var(-
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cards div{background:#0e141c;border:1px solid #293446;border-radius:12px;padding:13px}.cards strong{display:block;color:var(--gold);font-size:22px}.cards span{color:var(--muted)}
 .primary{width:100%;margin-top:18px;background:linear-gradient(90deg,#d5a247,#ffd077);font-size:18px;color:#1a1208}.result{margin-top:14px}.hidden{display:none}audio{width:100%;margin-top:12px}.downloads{display:flex;gap:10px;margin-top:10px}.downloads a{background:var(--gold);color:#1a1208}.status,#status{text-align:center;padding:10px;color:#c8d0da}
 @media(max-width:700px){.two,.three,.cards{grid-template-columns:1fr}.upload{flex-direction:column}.panel{padding:15px}h1{font-size:27px}}
+
+.mediaItem{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mediaName{font-weight:700;overflow-wrap:anywhere}
+.mediaActions{display:flex;gap:8px;flex-wrap:wrap}
+.mediaActions button{background:#273142;color:#f6f7f9}
+.mediaActions .useBtn{background:var(--gold);color:#17110a}
+@media(max-width:700px){.mediaItem{align-items:stretch;flex-direction:column}.mediaActions button{flex:1}}
