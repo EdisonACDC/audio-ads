@@ -10,7 +10,7 @@
 <div class="shell">
 <header>
   <div><small>AUDIO ADS STUDIO</small><h1>Audio Ads Studio</h1><p>Spot radiofonici con voce AI, musica, effetti e mastering.</p></div>
-  <span>v1.0.0</span>
+  <span>v1.0.3</span>
 </header>
 
 <nav>
@@ -49,18 +49,21 @@
 
 <section id="musicTab" class="panel">
   <div class="upload"><input id="musicFile" type="file" accept="audio/*"><button id="uploadMusic">Carica musica</button></div>
-  <label>Musica<select id="music"><option value="">Nessuna</option></select></label>
-  <label>Volume musica <b id="musicV">24%</b><input id="musicGain" type="range" min="0" max="70" value="24"></label>
-  <div class="hint">Ducking automatico: la musica si abbassa quando parla la voce.</div>
+  <label>Musica selezionata<select id="music"><option value="">Nessuna</option></select></label>
+  <label>Volume musica <b id="musicV">38%</b><input id="musicGain" type="range" min="0" max="70" value="38"></label>
+  <div class="hint">Ascolta prima le basi qui sotto. Premi <b>Usa questa</b> quando trovi quella giusta.</div>
+  <audio id="musicPreview" controls></audio>
   <div id="musicList" class="list"></div>
 </section>
 
 <section id="fxTab" class="panel">
   <div class="upload"><input id="fxFile" type="file" accept="audio/*"><button id="uploadFx">Carica effetto</button></div>
   <div class="grid two">
-    <label>Intro<select id="intro"><option value="">Nessuno</option></select></label>
-    <label>Outro<select id="outro"><option value="">Nessuno</option></select></label>
+    <label>Intro selezionato<select id="intro"><option value="">Nessuno</option></select></label>
+    <label>Outro selezionato<select id="outro"><option value="">Nessuno</option></select></label>
   </div>
+  <div class="hint">Ascolta gli effetti prima di assegnarli come intro o outro.</div>
+  <audio id="fxPreview" controls></audio>
   <div id="fxList" class="list"></div>
 </section>
 
