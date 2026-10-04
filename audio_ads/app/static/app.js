@@ -26,9 +26,37 @@ async function loadLibrary(){
   $("#music").innerHTML='<option value="">Nessuna</option>'+d.music.map(opt).join("");
   $("#intro").innerHTML='<option value="">Nessuno</option>'+d.sfx.map(opt).join("");
   $("#outro").innerHTML='<option value="">Nessuno</option>'+d.sfx.map(opt).join("");
-  $("#musicList").innerHTML=d.music.map(x=>`<div class="item">🎵 ${x.name}</div>`).join("");
-  $("#fxList").innerHTML=d.sfx.map(x=>`<div class="item">✨ ${x.name}</div>`).join("");
+  $("#musicList").innerHTML=d.music.map(x=>`
+    <div class="item mediaItem">
+      <div class="mediaName">🎵 ${x.name}</div>
+      <div class="mediaActions">
+        <button onclick="previewMedia('music','${encodeURIComponent(x.name)}')">▶ Ascolta</button>
+        <button class="useBtn" onclick="chooseMusic('${escapeHtml(x.name)}')">Usa questa</button>
+      </div>
+    </div>`).join("");
+  $("#fxList").innerHTML=d.sfx.map(x=>`
+    <div class="item mediaItem">
+      <div class="mediaName">✨ ${x.name}</div>
+      <div class="mediaActions">
+        <button onclick="previewMedia('sfx','${encodeURIComponent(x.name)}')">▶ Ascolta</button>
+        <button onclick="chooseIntro('${escapeHtml(x.name)}')">Intro</button>
+        <button onclick="chooseOutro('${escapeHtml(x.name)}')">Outro</button>
+      </div>
+    </div>`).join("");
 }
+
+function escapeHtml(s){return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+window.previewMedia=(kind,name)=>{
+  const player=kind==="music"?$("#musicPreview"):$("#fxPreview");
+  player.src=api(`api/media/${kind}/${name}`);
+  player.play();
+};
+window.chooseMusic=name=>{
+  $("#music").value=name;
+  document.querySelector('[data-tab="musicTab"]')?.classList.add("active");
+};
+window.chooseIntro=name=>{$("#intro").value=name};
+window.chooseOutro=name=>{$("#outro").value=name};
 
 async function upload(kind,input){
   const f=$(input).files[0];if(!f)return alert("Seleziona un file");
