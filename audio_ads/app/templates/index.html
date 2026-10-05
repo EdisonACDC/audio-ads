@@ -25,11 +25,24 @@
 <section id="textTab" class="panel active">
   <div class="grid two">
     <label>Titolo<input id="title" value="Carellas Spot"></label>
+    <label>Stile spot
+      <select id="adPreset">
+        <option value="restaurant_elegant">Ristorante elegante</option>
+        <option value="wedding_event">Matrimonio / Evento</option>
+        <option value="radio_30">Radio classico 30s</option>
+        <option value="promo_energy">Promo energica</option>
+        <option value="premium_luxury">Premium / Lusso</option>
+        <option value="family_warm">Family / Caldo</option>
+        <option value="corporate_clean">Corporate / Pulito</option>
+        <option value="cinematic_story">Cinematico / Storytelling</option>
+      </select>
+    </label>
     <label>Lingua<select id="language">
       {% for code,name in languages.items() %}<option value="{{code}}">{{name}}</option>{% endfor %}
     </select></label>
   </div>
   <label>Testo dello spot<textarea id="text" placeholder="Inserisci il testo..."></textarea></label>
+  <div class="presetInfo" id="presetInfo"></div>
   <div class="hint">Per uno spot radio: frasi brevi, messaggio chiaro e call-to-action finale.</div>
 </section>
 
