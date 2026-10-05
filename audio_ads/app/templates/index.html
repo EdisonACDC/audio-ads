@@ -10,7 +10,7 @@
 <div class="shell">
 <header>
   <div><small>AUDIO ADS STUDIO</small><h1>Audio Ads Studio</h1><p>Spot radiofonici con voce AI, musica, effetti e mastering.</p></div>
-  <span>v1.2.1</span>
+  <span>v1.2.2</span>
 </header>
 
 <nav>
@@ -126,7 +126,14 @@
 </section>
 
 <section id="archiveTab" class="panel">
-  <button id="refresh">Aggiorna archivio</button>
+  <div class="archiveHeader">
+    <div>
+      <h2>Archivio spot</h2>
+      <p>Ascolta, scarica, riapri o elimina gli spot creati.</p>
+    </div>
+    <button id="refresh">Aggiorna archivio</button>
+  </div>
+  <audio id="archivePlayer" controls></audio>
   <div id="projects" class="list"></div>
 </section>
 </div>
