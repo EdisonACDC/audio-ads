@@ -4,6 +4,8 @@ import re
 import subprocess
 import time
 import uuid
+import shutil
+import urllib.request
 from pathlib import Path
 
 import edge_tts
@@ -15,8 +17,36 @@ MUSIC = ROOT / "music"
 SFX = ROOT / "sfx"
 OUT = ROOT / "outputs"
 PROJECTS = ROOT / "projects"
-for folder in (MUSIC,SFX,OUT,PROJECTS):
+ONLINE_CACHE = ROOT / "online_cache"
+for folder in (MUSIC,SFX,OUT,PROJECTS,ONLINE_CACHE):
     folder.mkdir(parents=True, exist_ok=True)
+
+FREEPD = [
+    {"id":"romance_night_venice","title":"Night in Venice","category":"Romantico","folder":"Romance"},
+    {"id":"romance_lovely_piano","title":"Lovely Piano Song","category":"Romantico","folder":"Romance"},
+    {"id":"romance_lucky_break","title":"Lucky Break","category":"Romantico","folder":"Romance"},
+    {"id":"romance_horizon_flare","title":"Horizon Flare","category":"Romantico","folder":"Romance"},
+    {"id":"romance_landra_dream","title":"Landra's Dream","category":"Romantico","folder":"Romance"},
+    {"id":"romance_citadelle","title":"La Citadelle","category":"Romantico","folder":"Romance"},
+    {"id":"upbeat_advertime","title":"Advertime","category":"Upbeat","folder":"Upbeat"},
+    {"id":"upbeat_city_sunshine","title":"City Sunshine","category":"Upbeat","folder":"Upbeat"},
+    {"id":"upbeat_funshine","title":"Funshine","category":"Upbeat","folder":"Upbeat"},
+    {"id":"upbeat_inspiration","title":"Inspiration","category":"Upbeat","folder":"Upbeat"},
+    {"id":"upbeat_inventing_flight","title":"Inventing Flight","category":"Upbeat","folder":"Upbeat"},
+    {"id":"upbeat_be_chillin","title":"Be Chillin","category":"Upbeat","folder":"Upbeat"},
+    {"id":"electronic_backbeat","title":"Backbeat","category":"Elettronico","folder":"Electronic"},
+    {"id":"electronic_chronos","title":"Chronos","category":"Elettronico","folder":"Electronic"},
+    {"id":"electronic_favorite","title":"Favorite","category":"Elettronico","folder":"Electronic"},
+    {"id":"electronic_fireworks","title":"Fireworks","category":"Elettronico","folder":"Electronic"},
+    {"id":"electronic_hear","title":"Hear What They Say","category":"Elettronico","folder":"Electronic"},
+    {"id":"electronic_3am","title":"3 am West End","category":"Elettronico","folder":"Electronic"},
+    {"id":"world_ambient_bongos","title":"Ambient Bongos","category":"World","folder":"World"},
+    {"id":"world_bavarian","title":"Bavarian Seascape","category":"World","folder":"World"},
+    {"id":"world_be_jammin","title":"Be Jammin","category":"World","folder":"World"},
+    {"id":"world_bollywood","title":"Bollywood Groove","category":"World","folder":"World"},
+    {"id":"world_bonfire","title":"Bonfire","category":"World","folder":"World"},
+    {"id":"world_connecting","title":"Connecting Rainbows","category":"World","folder":"World"}
+]
 
 ALLOWED = {".mp3",".wav",".m4a",".aac",".ogg",".flac"}
 LANGUAGES = {
@@ -74,7 +104,7 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return jsonify({"ok":True,"service":"audio-ads","version":"1.0.3"})
+    return jsonify({"ok":True,"service":"audio-ads","version":"1.1.0"})
 
 @app.get("/api/voices")
 def voices():
@@ -102,6 +132,64 @@ def upload(kind):
         return jsonify({"error":"Formato audio non supportato"}),400
     f.save(folder/name)
     return jsonify({"ok":True,"name":name})
+
+def freepd_track(track_id):
+    return next((t for t in FREEPD if t["id"] == track_id), None)
+
+def freepd_url(track):
+    relative = f'{track["folder"]}/{track["title"]}.mp3'
+    token = relative.encode("utf-8").hex()
+    return f"https://en.freepd.cn/api/music/{token}"
+
+def freepd_cache(track):
+    return ONLINE_CACHE / f'{track["id"]}.mp3'
+
+def ensure_freepd(track):
+    target = freepd_cache(track)
+    if not target.exists() or target.stat().st_size < 1024:
+        req = urllib.request.Request(
+            freepd_url(track),
+            headers={"User-Agent":"AudioAdsStudio/1.1"}
+        )
+        with urllib.request.urlopen(req, timeout=45) as src, open(target, "wb") as dst:
+            shutil.copyfileobj(src, dst)
+    return target
+
+@app.get("/api/online/freepd")
+def freepd_catalog():
+    return jsonify([
+        {
+            "id":t["id"],
+            "title":t["title"],
+            "category":t["category"],
+            "source":"FreePD",
+            "license":"CC0 / Public Domain"
+        } for t in FREEPD
+    ])
+
+@app.get("/api/online/freepd/preview/<track_id>")
+def freepd_preview(track_id):
+    track = freepd_track(track_id)
+    if not track:
+        abort(404)
+    try:
+        return send_file(ensure_freepd(track), conditional=True)
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
+
+@app.post("/api/online/freepd/import/<track_id>")
+def freepd_import(track_id):
+    track = freepd_track(track_id)
+    if not track:
+        abort(404)
+    try:
+        cached = ensure_freepd(track)
+        filename = safe(f'FreePD - {track["title"]}.mp3')
+        target = MUSIC / filename
+        shutil.copy2(cached, target)
+        return jsonify({"ok":True,"name":filename})
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
 
 @app.get("/api/media/<kind>/<path:name>")
 def media(kind,name):
