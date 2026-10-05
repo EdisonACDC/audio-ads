@@ -105,3 +105,74 @@ async function loadProjects(){
 $("#refresh").onclick=loadProjects;
 
 loadVoices();loadLibrary();
+
+let onlineTracks=[];
+
+async function loadOnlineMusic(){
+  const r=await fetch(api("api/online/freepd"));
+  const d=await r.json();
+  if(!r.ok){
+    $("#onlineMusicList").innerHTML='<div class="item">Errore caricamento libreria online.</div>';
+    return;
+  }
+  onlineTracks=d;
+  renderOnlineMusic();
+}
+
+function renderOnlineMusic(){
+  const cat=$("#onlineCategory").value;
+  const q=$("#onlineSearch").value.trim().toLowerCase();
+  const items=onlineTracks.filter(x=>
+    (!cat || x.category===cat) &&
+    (!q || x.title.toLowerCase().includes(q))
+  );
+  $("#onlineMusicList").innerHTML=items.map(x=>`
+    <div class="item mediaItem">
+      <div class="mediaName">
+        <b>🎼 ${x.title}</b>
+        <small>${x.category} • ${x.license}</small>
+      </div>
+      <div class="mediaActions">
+        <button onclick="previewOnline('${x.id}')">▶ Ascolta</button>
+        <button class="useBtn" onclick="importOnline('${x.id}')">⬇ Importa</button>
+      </div>
+    </div>`).join("") || '<div class="item">Nessun brano trovato.</div>';
+}
+
+window.previewOnline=id=>{
+  $("#musicPreview").src=api("api/online/freepd/preview/"+id);
+  $("#musicPreview").play();
+};
+
+window.importOnline=async id=>{
+  const btn=event?.target;
+  if(btn){btn.disabled=true;btn.textContent="Importazione...";}
+  try{
+    const r=await fetch(api("api/online/freepd/import/"+id),{method:"POST"});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Errore importazione");
+    await loadLibrary();
+    $("#music").value=d.name;
+    alert("Brano importato e selezionato: "+d.name);
+  }catch(e){
+    alert(e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="⬇ Importa";}
+  }
+};
+
+$("#showLocal").onclick=()=>{
+  $("#localMusicArea").classList.remove("hidden");
+  $("#onlineMusicArea").classList.add("hidden");
+  $("#showLocal").classList.add("active");
+  $("#showOnline").classList.remove("active");
+};
+$("#showOnline").onclick=()=>{
+  $("#localMusicArea").classList.add("hidden");
+  $("#onlineMusicArea").classList.remove("hidden");
+  $("#showOnline").classList.add("active");
+  $("#showLocal").classList.remove("active");
+  if(!onlineTracks.length)loadOnlineMusic();
+};
+$("#onlineCategory").onchange=renderOnlineMusic;
+$("#onlineSearch").oninput=renderOnlineMusic;
