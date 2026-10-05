@@ -104,7 +104,7 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return jsonify({"ok":True,"service":"audio-ads","version":"1.1.0"})
+    return jsonify({"ok":True,"service":"audio-ads","version":"1.2.2"})
 
 @app.get("/api/voices")
 def voices():
@@ -315,6 +315,34 @@ def projects():
         except: pass
     data.sort(key=lambda x:x.get("created",0),reverse=True)
     return jsonify(data)
+
+@app.get("/api/project/<pid>")
+def project_detail(pid):
+    p = PROJECTS / f"{safe(pid)}.json"
+    if not p.exists():
+        abort(404)
+    try:
+        return jsonify(json.loads(p.read_text(encoding="utf-8")))
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
+
+@app.delete("/api/project/<pid>")
+def delete_project(pid):
+    p = PROJECTS / f"{safe(pid)}.json"
+    if not p.exists():
+        abort(404)
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        for key in ("mp3","wav"):
+            name = data.get(key)
+            if name:
+                f = OUT / safe(name)
+                if f.exists():
+                    f.unlink()
+        p.unlink()
+        return jsonify({"ok":True})
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
 
 @app.get("/api/output/<path:name>")
 def output(name):
