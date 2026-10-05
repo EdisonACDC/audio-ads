@@ -29,3 +29,12 @@ input[type=range]{padding:0}.hint{background:#101720;border-left:3px solid var(-
 .presetInfo b,.presetInfo span{display:block}.presetInfo span{color:var(--muted);margin-top:4px}
 .musicTabs{display:flex;gap:8px;margin:16px 0 10px}.subtab{background:#273142;color:#f6f7f9}.subtab.active{background:var(--gold);color:#17110a}
 .mediaName small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
+
+.archiveHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.archiveHeader h2{margin:0}.archiveHeader p{margin:4px 0 0;color:var(--muted)}
+.projectCard{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.projectInfo b,.projectInfo small{display:block}.projectInfo small{color:var(--muted);margin-top:3px}
+.projectActions{display:flex;gap:8px;flex-wrap:wrap}
+.projectActions button,.projectActions a{background:#273142;color:#f6f7f9}
+.projectActions .dangerBtn{background:#5a2529;color:#ffdfe2}
+@media(max-width:700px){.archiveHeader,.projectCard{align-items:stretch;flex-direction:column}.projectActions>*{flex:1;text-align:center}}
