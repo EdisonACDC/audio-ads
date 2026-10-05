@@ -10,7 +10,7 @@
 <div class="shell">
 <header>
   <div><small>AUDIO ADS STUDIO</small><h1>Audio Ads Studio</h1><p>Spot radiofonici con voce AI, musica, effetti e mastering.</p></div>
-  <span>v1.0.3</span>
+  <span>v1.1.0</span>
 </header>
 
 <nav>
@@ -51,9 +51,36 @@
   <div class="upload"><input id="musicFile" type="file" accept="audio/*"><button id="uploadMusic">Carica musica</button></div>
   <label>Musica selezionata<select id="music"><option value="">Nessuna</option></select></label>
   <label>Volume musica <b id="musicV">38%</b><input id="musicGain" type="range" min="0" max="70" value="38"></label>
-  <div class="hint">Ascolta prima le basi qui sotto. Premi <b>Usa questa</b> quando trovi quella giusta.</div>
+  <div class="hint">Ascolta prima le basi locali oppure apri la <b>Libreria Online CC0</b> per brani reali gratuiti.</div>
   <audio id="musicPreview" controls></audio>
-  <div id="musicList" class="list"></div>
+
+  <div class="musicTabs">
+    <button id="showLocal" class="subtab active">Libreria locale</button>
+    <button id="showOnline" class="subtab">Libreria Online CC0</button>
+  </div>
+
+  <div id="localMusicArea">
+    <div id="musicList" class="list"></div>
+  </div>
+
+  <div id="onlineMusicArea" class="hidden">
+    <div class="grid two">
+      <label>Categoria
+        <select id="onlineCategory">
+          <option value="">Tutte</option>
+          <option value="Romantico">Romantico</option>
+          <option value="Upbeat">Upbeat</option>
+          <option value="Elettronico">Elettronico</option>
+          <option value="World">World</option>
+        </select>
+      </label>
+      <label>Cerca
+        <input id="onlineSearch" placeholder="Cerca un brano...">
+      </label>
+    </div>
+    <div class="hint">Brani FreePD: CC0 / public domain, gratuiti anche per uso commerciale.</div>
+    <div id="onlineMusicList" class="list"></div>
+  </div>
 </section>
 
 <section id="fxTab" class="panel">
