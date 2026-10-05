@@ -24,3 +24,8 @@ input[type=range]{padding:0}.hint{background:#101720;border-left:3px solid var(-
 .subtab{background:#273142;color:#f6f7f9}
 .subtab.active{background:var(--gold);color:#17110a}
 .mediaName small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
+
+.presetInfo{background:#101720;border:1px solid #273244;border-radius:12px;padding:12px 14px;margin:10px 0 14px}
+.presetInfo b,.presetInfo span{display:block}.presetInfo span{color:var(--muted);margin-top:4px}
+.musicTabs{display:flex;gap:8px;margin:16px 0 10px}.subtab{background:#273142;color:#f6f7f9}.subtab.active{background:var(--gold);color:#17110a}
+.mediaName small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
