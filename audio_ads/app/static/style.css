@@ -19,3 +19,8 @@ input[type=range]{padding:0}.hint{background:#101720;border-left:3px solid var(-
 .mediaActions button{background:#273142;color:#f6f7f9}
 .mediaActions .useBtn{background:var(--gold);color:#17110a}
 @media(max-width:700px){.mediaItem{align-items:stretch;flex-direction:column}.mediaActions button{flex:1}}
+
+.musicTabs{display:flex;gap:8px;margin:16px 0 10px}
+.subtab{background:#273142;color:#f6f7f9}
+.subtab.active{background:var(--gold);color:#17110a}
+.mediaName small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
