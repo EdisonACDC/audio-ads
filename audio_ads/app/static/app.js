@@ -176,3 +176,73 @@ $("#showOnline").onclick=()=>{
 };
 $("#onlineCategory").onchange=renderOnlineMusic;
 $("#onlineSearch").oninput=renderOnlineMusic;
+
+const AD_PRESETS={
+  restaurant_elegant:{name:"Ristorante elegante",desc:"Voce calda, ritmo rilassato, musica romantica o jazz lounge, effetti minimi.",rate:-5,musicGain:32,master:"sonos",category:"Romantico"},
+  wedding_event:{name:"Matrimonio / Evento",desc:"Apertura emozionale, voce elegante, musica romantica/cinematica e chiusura calorosa.",rate:-7,musicGain:34,master:"sonos",category:"Romantico"},
+  radio_30:{name:"Radio classico 30s",desc:"Hook rapido, messaggio centrale chiaro e CTA finale. Ritmo naturale ma deciso.",rate:3,musicGain:30,master:"broadcast",category:"Upbeat"},
+  promo_energy:{name:"Promo energica",desc:"Ritmo più veloce, musica brillante e stacco iniziale più deciso.",rate:10,musicGain:40,master:"streaming",category:"Upbeat"},
+  premium_luxury:{name:"Premium / Lusso",desc:"Voce lenta e autorevole, musica elegante e spazio tra le frasi.",rate:-10,musicGain:28,master:"sonos",category:"Romantico"},
+  family_warm:{name:"Family / Caldo",desc:"Voce amichevole, tono positivo, musica morbida e luminosa.",rate:-2,musicGain:34,master:"sonos",category:"Upbeat"},
+  corporate_clean:{name:"Corporate / Pulito",desc:"Voce chiara, ritmo regolare, musica moderna discreta.",rate:0,musicGain:26,master:"streaming",category:"Elettronico"},
+  cinematic_story:{name:"Cinematico / Storytelling",desc:"Apertura atmosferica, ritmo più lento e crescendo musicale.",rate:-8,musicGain:36,master:"streaming",category:"World"}
+};
+function applyAdPreset(){
+  const p=AD_PRESETS[$("#adPreset").value];
+  if(!p)return;
+  $("#rate").value=p.rate;$("#rateV").textContent=p.rate+"%";
+  $("#musicGain").value=p.musicGain;$("#musicV").textContent=p.musicGain+"%";
+  $("#mastering").value=p.master;
+  $("#presetInfo").innerHTML="<b>"+p.name+"</b><span>"+p.desc+"</span>";
+  if($("#onlineCategory")) $("#onlineCategory").value=p.category;
+}
+$("#adPreset").onchange=applyAdPreset;
+applyAdPreset();
+
+let onlineTracks=[];
+async function loadOnlineMusic(){
+  const r=await fetch(api("api/online/freepd"));
+  const d=await r.json();
+  if(!r.ok){
+    $("#onlineMusicList").innerHTML='<div class="item">Errore caricamento libreria online.</div>';
+    return;
+  }
+  onlineTracks=d;renderOnlineMusic();
+}
+function renderOnlineMusic(){
+  const cat=$("#onlineCategory").value;
+  const q=$("#onlineSearch").value.trim().toLowerCase();
+  const items=onlineTracks.filter(x=>(!cat||x.category===cat)&&(!q||x.title.toLowerCase().includes(q)));
+  $("#onlineMusicList").innerHTML=items.map(x=>`
+    <div class="item mediaItem">
+      <div class="mediaName"><b>🎼 ${x.title}</b><small>${x.category} • ${x.license}</small></div>
+      <div class="mediaActions">
+        <button onclick="previewOnline('${x.id}')">▶ Ascolta</button>
+        <button class="useBtn" onclick="importOnline('${x.id}',this)">⬇ Importa</button>
+      </div>
+    </div>`).join("")||'<div class="item">Nessun brano trovato.</div>';
+}
+window.previewOnline=id=>{
+  $("#musicPreview").src=api("api/online/freepd/preview/"+id);$("#musicPreview").play();
+};
+window.importOnline=async(id,btn)=>{
+  if(btn){btn.disabled=true;btn.textContent="Importazione...";}
+  try{
+    const r=await fetch(api("api/online/freepd/import/"+id),{method:"POST"});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||"Errore importazione");
+    await loadLibrary();$("#music").value=d.name;
+    alert("Brano importato e selezionato: "+d.name);
+  }catch(e){alert(e.message)}
+  finally{if(btn){btn.disabled=false;btn.textContent="⬇ Importa";}}
+};
+$("#showLocal").onclick=()=>{
+  $("#localMusicArea").classList.remove("hidden");$("#onlineMusicArea").classList.add("hidden");
+  $("#showLocal").classList.add("active");$("#showOnline").classList.remove("active");
+};
+$("#showOnline").onclick=()=>{
+  $("#localMusicArea").classList.add("hidden");$("#onlineMusicArea").classList.remove("hidden");
+  $("#showOnline").classList.add("active");$("#showLocal").classList.remove("active");
+  if(!onlineTracks.length)loadOnlineMusic();
+};
+$("#onlineCategory").onchange=renderOnlineMusic;
+$("#onlineSearch").oninput=renderOnlineMusic;
