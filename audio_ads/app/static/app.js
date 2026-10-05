@@ -259,18 +259,71 @@ $("#generate")?.addEventListener("click",async()=>{
 });
 
 async function loadProjects(){
+  const box=$("#projects");
+  box.innerHTML='<div class="item">Caricamento archivio...</div>';
   try{
-    const r=await fetch(api("api/projects"));
+    const r=await fetch(api("api/projects"),{cache:"no-store"});
     const d=await r.json();
-    $("#projects").innerHTML=d.length?d.map(p=>`
-      <div class="item">
-        <b>${p.title}</b><br>
-        <small>${p.duration}s • ${new Date(p.created*1000).toLocaleString()}</small>
+    if(!r.ok)throw new Error(d.error||"Errore archivio");
+    box.innerHTML=d.length?d.map(p=>`
+      <div class="item projectCard">
+        <div class="projectInfo">
+          <b>${p.title}</b>
+          <small>${p.duration}s • ${new Date(p.created*1000).toLocaleString()}</small>
+          <small>${p.music_used ? "Musica: "+p.music_used : "Senza musica"}</small>
+        </div>
+        <div class="projectActions">
+          <button type="button" onclick="playProject('${jsString(p.mp3||"")}')">▶ Ascolta</button>
+          <a href="${api('api/output/'+encodeURIComponent(p.mp3||""))}" download>MP3</a>
+          <a href="${api('api/output/'+encodeURIComponent(p.wav||""))}" download>WAV</a>
+          <button type="button" onclick="editProject('${p.id}')">Modifica</button>
+          <button type="button" class="dangerBtn" onclick="deleteProject('${p.id}')">Elimina</button>
+        </div>
       </div>`).join(""):'<div class="item">Nessuno spot salvato.</div>';
   }catch(e){
-    $("#projects").innerHTML=`<div class="item">Errore: ${e.message}</div>`;
+    box.innerHTML=`<div class="item">Errore archivio: ${e.message}</div>`;
   }
 }
+
+window.playProject=name=>{
+  if(!name)return alert("File MP3 non disponibile");
+  const player=$("#archivePlayer");
+  player.src=api("api/output/"+encodeURIComponent(name));
+  player.play().catch(()=>alert("Impossibile riprodurre questo file"));
+};
+
+window.editProject=async id=>{
+  try{
+    const r=await fetch(api("api/project/"+id),{cache:"no-store"});
+    const p=await r.json();
+    if(!r.ok)throw new Error(p.error||"Progetto non trovato");
+    const s=p.settings||{};
+    if(s.title!==undefined)$("#title").value=s.title;
+    if(s.text!==undefined)$("#text").value=s.text;
+    if(s.voice!==undefined)$("#voice").value=s.voice;
+    if(s.rate!==undefined){$("#rate").value=s.rate;$("#rateV").textContent=s.rate+"%";}
+    if(s.pitch!==undefined){$("#pitch").value=s.pitch;$("#pitchV").textContent=s.pitch+" Hz";}
+    if(s.tts_volume!==undefined){$("#ttsVolume").value=s.tts_volume;$("#ttsV").textContent=s.tts_volume+"%";}
+    if(s.music_gain!==undefined){$("#musicGain").value=Math.round(s.music_gain*100);$("#musicV").textContent=Math.round(s.music_gain*100)+"%";}
+    if(s.mastering!==undefined)$("#mastering").value=s.mastering;
+    await loadLibrary();
+    if(s.music!==undefined)$("#music").value=s.music;
+    if(s.intro!==undefined)$("#intro").value=s.intro;
+    if(s.outro!==undefined)$("#outro").value=s.outro;
+    setTab("textTab");
+  }catch(e){alert(e.message);}
+};
+
+window.deleteProject=async id=>{
+  if(!confirm("Eliminare definitivamente questo spot dall'archivio?"))return;
+  try{
+    const r=await fetch(api("api/project/"+id),{method:"DELETE"});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||"Errore eliminazione");
+    await loadProjects();
+  }catch(e){alert(e.message);}
+};
+
 $("#refresh")?.addEventListener("click",loadProjects);
 
 applyAdPreset();
